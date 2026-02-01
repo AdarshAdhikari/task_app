@@ -33,6 +33,7 @@ router.put('/:id', auth, async (req, res) => {
 
     Object.assign(task, req.body);
     await task.save();
+    console.log(task);
     res.json(task);
 });
 
