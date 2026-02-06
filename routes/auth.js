@@ -36,5 +36,28 @@ router.post("/login", async (req, res) => {
     res.json({token});
 });
 
+//forgot password
+
+router.post("/forgot-password", async (req, res) => {
+    const {email, newPassword} = req.body;
+
+    try {
+        const user = await User.findOne({email});
+        if (!user) {
+            return res.status(400).send("User not found");
+        }
+
+//hash the new password
+   
+   const hashed = await bcrypt.hash(newPassword, 10);
+
+   user.password = hashed;
+   await user.save();
+
+   res.send("Password reset successfully");
+} catch (error) {
+    res.status(500).send("Error resetting password");
+}});
+
 module.exports = router;    
 

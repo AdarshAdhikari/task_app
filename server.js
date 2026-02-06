@@ -13,6 +13,13 @@ const projectRoutes = require("./routes/projects");
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 connectDB();
 
 app.use(express.json());       
@@ -39,6 +46,7 @@ app.use("/api/tasks", taskRouter); //tasks route
 
 app.use("/api/projects",projectRoutes); //projects route
 
+app.use("/api/auth",require("./routes/auth")); //auth route
 
 
 

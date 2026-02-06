@@ -52,4 +52,37 @@ router.get("/:id/progress", auth, async (req, res) => {
   res.json({ total, completed, percent });
 });
 
+// Delete project
+
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    console.log("DELETE PROJECT ID:", req.params.id);
+    console.log("LOGGED USER ID:", req.user.id);
+
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      console.log("PROJECT NOT FOUND");
+      return res.status(404).send("Project not found");
+    }
+
+    console.log("PROJECT OWNER:", project.createdBy.toString());
+
+    if (project.createdBy.toString() !== req.user.id) {
+      console.log("NOT AUTHORIZED");
+      return res.status(403).send("Not authorized");
+    }
+
+    await project.deleteOne();
+    console.log("PROJECT DELETED");
+
+    res.send("Project deleted successfully");
+  } catch (err) {
+    console.error("DELETE ERROR:", err);
+    res.status(500).send("Error deleting project");
+  }
+});
+
+
+
 module.exports = router;
