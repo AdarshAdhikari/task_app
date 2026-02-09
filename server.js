@@ -1,56 +1,42 @@
-require("dotenv").config();
-const express = require("express"); 
-const cors = require("cors");
-const connectDB = require("./config/db");
+import dotenv from "dotenv";
+dotenv.config();
 
+import express from "express";
+import cors from "cors";
+import connectDB from "./config/db.js";
 
-const authRouter = require("./routes/auth");
-const userRouter = require("./routes/usersdata");
-const taskRouter = require("./routes/tasks");
-const projectRoutes = require("./routes/projects");
-
-
+import authRouter from "./routes/auth.js";
+import userRouter from "./routes/usersdata.js";
+import taskRouter from "./routes/tasks.js";
+import projectRoutes from "./routes/projects.js";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
-connectDB();
-
-app.use(express.json());       
-
-app.get("/", (req, res) => {
-  res.send("task-manager backend  is running...");
-});
-
-//allow json from frontend
-app.use(cors());
+// middleware
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 app.use(express.json());
 
-//testing route
+// debug
+console.log("MONGO_URI:", process.env.MONGO_URI);
+
+// db
+connectDB();
+
+// routes
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.send("Task Manager backend is running...");
 });
 
-//routes
-app.use("/api/users", userRouter); //users route
+app.use("/api/users", userRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/tasks", taskRouter);
+app.use("/api/projects", projectRoutes);
 
-app.use("/api/auth", authRouter); //auth route
-
-app.use("/api/tasks", taskRouter); //tasks route
-
-app.use("/api/projects",projectRoutes); //projects route
-
-app.use("/api/auth",require("./routes/auth")); //auth route
-
-
-
-//server start
+// server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

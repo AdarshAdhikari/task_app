@@ -1,10 +1,11 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
-module.exports = function (req, res, next) {
+const auth = (req, res, next) => {
   const authHeader = req.header("Authorization");
 
-  if (!authHeader) 
+  if (!authHeader) {
     return res.status(401).send("Access denied. No token provided.");
+  }
 
   // Remove "Bearer "
   const token = authHeader.split(" ")[1];
@@ -13,8 +14,9 @@ module.exports = function (req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
-  } 
-  catch (err) {
+  } catch (err) {
     res.status(400).send("Invalid token.");
   }
 };
+
+export default auth;
