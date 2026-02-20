@@ -10,6 +10,18 @@ router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    // Basic validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
@@ -19,9 +31,18 @@ router.post("/register", async (req, res) => {
     });
 
     await user.save();
-    res.send("User registered successfully");
+
+    // Optional: auto-login after register
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+    res.status(201).json({
+      message: "User registered successfully",
+      token,
+    });
+
   } catch (err) {
-    res.status(500).send("Registration failed");
+    console.error(err);
+    res.status(500).json({ message: "Registration failed" });
   }
 });
 
